@@ -1,0 +1,2 @@
+Place solution files (.zip, .msapp, .json) here.
+These are referenced by agent JSON files via the solutionFileName field.

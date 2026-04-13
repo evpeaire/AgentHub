@@ -1,0 +1,37 @@
+{
+  "_comment": "This is a template. Copy this file, rename it to your-agent-id.json, and fill in the fields.",
+  "id": "your-agent-id",
+  "name": "Your Agent Name",
+  "description": "A one-line description of what the agent does",
+  "overview": "Detailed overview — what problem it solves, who it's for, key capabilities...",
+  "instructions": "The system prompt / instructions that power this agent",
+  "author": "Your Name",
+  "authorEmail": "your@email.com",
+  "createdAt": "2025-01-01T00:00:00.000Z",
+  "updatedAt": "2025-01-01T00:00:00.000Z",
+  "tags": ["copilot", "example-tag"],
+  "category": "IT Support",
+  "topics": [
+    {
+      "id": "topic-1",
+      "name": "Greeting",
+      "description": "Handles initial greetings",
+      "yamlContent": "# Paste topic YAML here",
+      "triggerPhrases": ["hello", "hi", "help"]
+    }
+  ],
+  "tools": [
+    {
+      "id": "tool-1",
+      "name": "SharePoint Connector",
+      "description": "Reads knowledge base articles from SharePoint",
+      "type": "connector"
+    }
+  ],
+  "powerAutomateFlows": [],
+  "additionalSections": [],
+  "solutionFileName": "",
+  "screenshotUrls": [],
+  "qualityScore": 0,
+  "githubUrl": ""
+}
