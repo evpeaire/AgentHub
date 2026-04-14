@@ -32,6 +32,10 @@ jobs:
 
       - name: Build site
         run: npm run build -- --base=/${{ github.event.repository.name }}/
+        env:
+          VITE_GITHUB_CLIENT_ID: Ov23liaKEXBnfl9YEcqe
+          VITE_REPO_OWNER: evpeaire
+          VITE_REPO_NAME: AgentHub
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
