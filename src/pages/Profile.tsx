@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useGitHubAuth } from '../auth/GitHubAuth';
 import { useFavorites } from '../hooks/useFavorites';
 import { loadIndex, loadAgent } from '../services/data';
@@ -12,9 +12,11 @@ type TabId = 'agents' | 'favorites' | 'activity';
 export default function Profile() {
   const { user, isAuthenticated, login } = useGitHubAuth();
   const { favorites } = useFavorites();
+  const [searchParams] = useSearchParams();
   const [myAgents, setMyAgents] = useState<AgentSummary[]>([]);
   const [favoriteAgents, setFavoriteAgents] = useState<AgentSummary[]>([]);
-  const [activeTab, setActiveTab] = useState<TabId>('agents');
+  const initialTab = (searchParams.get('tab') as TabId) || 'agents';
+  const [activeTab, setActiveTab] = useState<TabId>(initialTab);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -34,6 +36,14 @@ export default function Profile() {
       })
       .finally(() => setLoading(false));
   }, [user, favorites]);
+
+  // Sync tab with URL param
+  useEffect(() => {
+    const tab = searchParams.get('tab') as TabId;
+    if (tab && ['agents', 'favorites', 'activity'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   if (!isAuthenticated || !user) {
     return (

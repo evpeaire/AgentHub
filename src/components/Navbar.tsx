@@ -44,8 +44,8 @@ export default function Navbar() {
                 {showUserMenu && (
                   <div className="user-menu-dropdown">
                     <button className="user-menu-item" onClick={() => { setShowUserMenu(false); navigate('/profile'); }}>Profile</button>
-                    <button className="user-menu-item" onClick={() => { setShowUserMenu(false); navigate('/profile'); }}>My Agents</button>
-                    <button className="user-menu-item" onClick={() => { setShowUserMenu(false); navigate('/profile'); }}>Saved</button>
+                    <button className="user-menu-item" onClick={() => { setShowUserMenu(false); navigate('/profile?tab=agents'); }}>My Agents</button>
+                    <button className="user-menu-item" onClick={() => { setShowUserMenu(false); navigate('/profile?tab=favorites'); }}>Saved</button>
                     <div className="user-menu-divider" />
                     <button className="user-menu-item" onClick={() => { setShowUserMenu(false); logout(); }}>Sign out</button>
                   </div>
