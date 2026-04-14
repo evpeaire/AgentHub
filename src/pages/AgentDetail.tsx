@@ -63,7 +63,7 @@ export default function AgentDetail() {
     script.src = 'https://giscus.app/client.js';
     script.setAttribute('data-repo', repo);
     script.setAttribute('data-repo-id', repoId);
-    script.setAttribute('data-category', 'Agent Discussions');
+    script.setAttribute('data-category', 'General');
     script.setAttribute('data-category-id', categoryId);
     script.setAttribute('data-mapping', 'specific');
     script.setAttribute('data-term', id);

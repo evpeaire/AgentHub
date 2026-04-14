@@ -37,6 +37,9 @@ jobs:
           VITE_REPO_OWNER: evpeaire
           VITE_REPO_NAME: AgentHub
           VITE_OAUTH_PROXY_URL: https://agent-hub-oauth.evpeaire.workers.dev
+          VITE_GISCUS_REPO: evpeaire/AgentHub
+          VITE_GISCUS_REPO_ID: R_kgDOSByoGA
+          VITE_GISCUS_CATEGORY_ID: DIC_kwDOSByoGM4C608f
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

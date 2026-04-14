@@ -4,8 +4,8 @@ interface GiscusCommentsProps {
 
 /**
  * Embeds GitHub Discussions as comments via giscus.
- * Configure your repo's Discussions and update the props below.
- * See: https://giscus.app for setup instructions.
+ * The giscus script is loaded dynamically in AgentDetail.tsx
+ * when the Discussion tab is selected.
  */
 export default function GiscusComments({ agentId }: GiscusCommentsProps) {
   const repo = import.meta.env.VITE_GISCUS_REPO || '';
@@ -24,26 +24,6 @@ export default function GiscusComments({ agentId }: GiscusCommentsProps) {
     );
   }
 
-  return (
-    <div className="giscus-wrapper" key={agentId}>
-      <script
-        src="https://giscus.app/client.js"
-        data-repo={repo}
-        data-repo-id={repoId}
-        data-category="Agent Discussions"
-        data-category-id={categoryId}
-        data-mapping="specific"
-        data-term={agentId}
-        data-strict="0"
-        data-reactions-enabled="1"
-        data-emit-metadata="0"
-        data-input-position="top"
-        data-theme="dark_dimmed"
-        data-lang="en"
-        data-loading="lazy"
-        crossOrigin="anonymous"
-        async
-      />
-    </div>
-  );
+  // Giscus is loaded dynamically — this is just a container
+  return <div className="giscus" key={agentId} />;
 }
