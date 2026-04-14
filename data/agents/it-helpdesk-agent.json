@@ -1,0 +1,117 @@
+{
+  "id": "it-helpdesk-agent",
+  "name": "IT Helpdesk Agent",
+  "description": "Resolves common IT support tickets — password resets, VPN issues, software requests, and device troubleshooting — before escalating to a human.",
+  "overview": "The IT Helpdesk Agent handles Tier 1 IT support requests automatically. It walks users through common troubleshooting steps, processes routine requests like password resets and software access, and only escalates to a human technician when the issue requires hands-on intervention.\n\nThe agent integrates with ServiceNow for ticket management, Intune for device status checks, and Entra ID for account operations. It reduces average ticket resolution time by handling the 60-70% of support requests that have known solutions.\n\nDesigned for organizations with 500+ employees where IT support volume exceeds team capacity.",
+  "instructions": "You are an IT Helpdesk Agent. Your goal is to resolve IT issues quickly and accurately.\n\nRules:\n1. Always start by understanding the user's issue clearly — ask clarifying questions\n2. Check if there are known outages before troubleshooting individual issues\n3. For password resets, verify identity using employee ID and manager name\n4. Never share admin credentials or bypass security protocols\n5. Log every interaction as a ServiceNow ticket\n6. Escalate to Tier 2 if: hardware failure, security incident, data loss, or if troubleshooting exceeds 3 steps without resolution\n7. Provide estimated resolution times when escalating",
+  "author": "evpeaire",
+  "authorEmail": "",
+  "createdAt": "2025-10-05T08:00:00.000Z",
+  "updatedAt": "2026-02-14T11:00:00.000Z",
+  "tags": [
+    "copilot",
+    "intune",
+    "entra-id",
+    "it-support",
+    "teams"
+  ],
+  "category": "IT Support",
+  "topics": [
+    {
+      "id": "topic-1",
+      "name": "Password Reset",
+      "description": "Guides users through self-service password reset or processes reset requests",
+      "yamlContent": "kind: AdaptiveDialog\nbeginDialog:\n  kind: OnRecognizedIntent\n  id: passwordReset\n  intent:\n    triggerQueries:\n      - I forgot my password\n      - Reset my password\n      - Can't log in\n  actions:\n    - kind: Question\n      id: verifyIdentity\n      prompt: For security, please provide your Employee ID.\n      variable: Topic.employeeId\n    - kind: Question\n      id: verifyManager\n      prompt: What is your direct manager's name?\n      variable: Topic.managerName\n    - kind: InvokeAction\n      id: resetPassword\n      actionName: ResetPasswordFlow\n      input:\n        employeeId: =Topic.employeeId\n    - kind: SendActivity\n      id: confirmReset\n      activity:\n        text: Your password has been reset. Check your personal email for the temporary password. You'll be prompted to create a new one on first login.",
+      "triggerPhrases": [
+        "forgot my password",
+        "reset password",
+        "can't log in",
+        "locked out",
+        "password expired"
+      ]
+    },
+    {
+      "id": "topic-2",
+      "name": "VPN Troubleshooting",
+      "description": "Walks through VPN connection issues step by step",
+      "yamlContent": "kind: AdaptiveDialog\nbeginDialog:\n  kind: OnRecognizedIntent\n  id: vpnTroubleshoot\n  intent:\n    triggerQueries:\n      - VPN not working\n      - Can't connect to VPN\n      - VPN connection failed\n  actions:\n    - kind: SendActivity\n      id: vpnSteps\n      activity:\n        text: |\n          Let's troubleshoot your VPN connection:\n          \n          **Step 1:** Close and reopen the VPN client\n          **Step 2:** Check your internet connection\n          **Step 3:** Try connecting to a different VPN server\n          **Step 4:** Clear VPN cached credentials\n          \n          Did any of these steps resolve the issue?",
+      "triggerPhrases": [
+        "VPN not working",
+        "can't connect to VPN",
+        "VPN error",
+        "remote access not working"
+      ]
+    },
+    {
+      "id": "topic-3",
+      "name": "Software Request",
+      "description": "Processes software installation and license requests",
+      "yamlContent": "kind: AdaptiveDialog\nbeginDialog:\n  kind: OnRecognizedIntent\n  id: softwareRequest\n  intent:\n    triggerQueries:\n      - I need software installed\n      - Request new software\n      - Install application\n  actions:\n    - kind: Question\n      id: whatSoftware\n      prompt: What software do you need installed?\n      variable: Topic.softwareName\n    - kind: Question\n      id: businessJustification\n      prompt: Please provide a brief business justification for this software.\n      variable: Topic.justification\n    - kind: InvokeAction\n      id: createTicket\n      actionName: CreateServiceNowTicket\n      input:\n        category: Software Request\n        software: =Topic.softwareName\n        justification: =Topic.justification",
+      "triggerPhrases": [
+        "need software installed",
+        "request software",
+        "install application",
+        "new app request"
+      ]
+    }
+  ],
+  "tools": [
+    {
+      "id": "tool-1",
+      "name": "ServiceNow Connector",
+      "description": "Creates, updates, and queries IT support tickets in ServiceNow",
+      "type": "connector"
+    },
+    {
+      "id": "tool-2",
+      "name": "Microsoft Intune",
+      "description": "Checks device compliance status, installed software, and pushes remote actions",
+      "type": "connector"
+    },
+    {
+      "id": "tool-3",
+      "name": "Entra ID",
+      "description": "Performs user account operations — password resets, group membership, MFA status",
+      "type": "connector"
+    }
+  ],
+  "powerAutomateFlows": [
+    {
+      "id": "flow-1",
+      "name": "Reset Password Flow",
+      "description": "Resets user password in Entra ID after identity verification and sends temporary credentials via personal email",
+      "triggerType": "http",
+      "purpose": "Enables self-service password reset without requiring a human IT admin"
+    },
+    {
+      "id": "flow-2",
+      "name": "Create ServiceNow Ticket",
+      "description": "Creates a categorized support ticket in ServiceNow with all conversation context attached",
+      "triggerType": "http",
+      "purpose": "Ensures every support interaction is logged and tracked for SLA compliance"
+    },
+    {
+      "id": "flow-3",
+      "name": "Escalation Notification",
+      "description": "Notifies the on-call IT technician via Teams when a ticket is escalated from Tier 1",
+      "triggerType": "http",
+      "purpose": "Reduces response time for escalated issues by immediately alerting the right person"
+    }
+  ],
+  "additionalSections": [
+    {
+      "id": "section-1",
+      "title": "Prerequisites",
+      "content": "1. ServiceNow instance with API access\n2. Entra ID admin consent for password reset operations\n3. Intune connector configured\n4. Teams channel for escalation notifications"
+    },
+    {
+      "id": "section-2",
+      "title": "Security Considerations",
+      "content": "- Identity verification is required before any account operations\n- Password reset tokens expire after 15 minutes\n- All operations are logged in the audit trail\n- The agent cannot grant admin privileges or modify security groups"
+    }
+  ],
+  "solutionFileName": "",
+  "screenshotUrls": [],
+  "qualityScore": 4.3,
+  "githubUrl": "https://github.com/evpeaire/AgentHub"
+}

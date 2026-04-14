@@ -1,0 +1,119 @@
+{
+  "id": "customer-onboarding-guide",
+  "name": "Customer Onboarding Guide",
+  "description": "Walks new customers through product setup, account configuration, and first-use training with personalized guidance based on their plan and industry.",
+  "overview": "The Customer Onboarding Guide provides a structured, interactive onboarding experience for new customers. Instead of sending a generic welcome email with documentation links, this agent walks each customer through setup step-by-step based on their specific plan, industry, and use case.\n\nIt tracks onboarding progress, answers setup questions in real time, schedules training sessions, and proactively checks in if a customer stalls mid-setup. The agent integrates with your CRM to pull customer details and with your product to verify configuration status.\n\nCustomer Success teams use this to scale onboarding without adding headcount. Early data shows 40% faster time-to-value and 25% reduction in support tickets during the first 30 days.",
+  "instructions": "You are a Customer Onboarding Guide. Your goal is to help new customers set up and start using our product successfully.\n\nRules:\n1. Always greet the customer by name and reference their plan/package\n2. Present onboarding as a numbered checklist so customers see progress\n3. Adjust guidance based on the customer's technical skill level\n4. Celebrate milestones — first login, first project created, first integration connected\n5. If a customer seems stuck, offer to schedule a live training session\n6. Never skip security setup steps (MFA, SSO) even if the customer wants to\n7. Log all onboarding interactions to the CRM timeline\n8. At the end of onboarding, introduce them to their Customer Success Manager",
+  "author": "evpeaire",
+  "authorEmail": "",
+  "createdAt": "2026-01-10T12:00:00.000Z",
+  "updatedAt": "2026-03-28T10:00:00.000Z",
+  "tags": [
+    "copilot",
+    "customer-service",
+    "dataverse",
+    "teams",
+    "outlook"
+  ],
+  "category": "Customer Service",
+  "topics": [
+    {
+      "id": "topic-1",
+      "name": "Welcome & Setup",
+      "description": "Initiates the onboarding flow with a personalized welcome and setup checklist",
+      "yamlContent": "kind: AdaptiveDialog\nbeginDialog:\n  kind: OnRecognizedIntent\n  id: welcomeSetup\n  intent:\n    triggerQueries:\n      - Start onboarding\n      - I'm a new customer\n      - Help me get started\n  actions:\n    - kind: InvokeAction\n      id: lookupCustomer\n      actionName: LookupCustomerDetails\n    - kind: SendActivity\n      id: welcome\n      activity:\n        text: |\n          Welcome aboard! Here's your personalized setup checklist:\n          \n          ☐ 1. Verify your account details\n          ☐ 2. Configure security (MFA + SSO)\n          ☐ 3. Set up your workspace\n          ☐ 4. Connect integrations\n          ☐ 5. Import your data\n          ☐ 6. Invite your team\n          ☐ 7. Complete first-use training\n          \n          Let's start with Step 1. Can you confirm your company name and admin email?",
+      "triggerPhrases": [
+        "start onboarding",
+        "new customer",
+        "get started",
+        "set up my account",
+        "first time here"
+      ]
+    },
+    {
+      "id": "topic-2",
+      "name": "Security Configuration",
+      "description": "Guides through MFA setup and SSO configuration",
+      "yamlContent": "kind: AdaptiveDialog\nbeginDialog:\n  kind: OnRecognizedIntent\n  id: securitySetup\n  intent:\n    triggerQueries:\n      - Set up MFA\n      - Configure SSO\n      - Security settings\n  actions:\n    - kind: SendActivity\n      id: securityGuide\n      activity:\n        text: |\n          Great — let's secure your account. This step is required before adding team members.\n          \n          **Multi-Factor Authentication (MFA):**\n          1. Go to Settings > Security > MFA\n          2. Choose your method: Authenticator app (recommended) or SMS\n          3. Follow the enrollment wizard\n          \n          **Single Sign-On (SSO):** (Enterprise plan only)\n          1. Go to Settings > Security > SSO\n          2. Select your identity provider (Entra ID, Okta, etc.)\n          3. Follow the SAML/OIDC configuration guide\n          \n          Need help with either of these?",
+      "triggerPhrases": [
+        "set up MFA",
+        "configure SSO",
+        "security setup",
+        "two-factor authentication",
+        "single sign-on"
+      ]
+    },
+    {
+      "id": "topic-3",
+      "name": "Schedule Training",
+      "description": "Books a live training session with the onboarding team",
+      "yamlContent": "kind: AdaptiveDialog\nbeginDialog:\n  kind: OnRecognizedIntent\n  id: scheduleTraining\n  intent:\n    triggerQueries:\n      - Schedule a training session\n      - I want live training\n      - Book a demo\n  actions:\n    - kind: Question\n      id: trainingType\n      prompt: What type of training are you interested in?\n      variable: Topic.trainingType\n      choices:\n        - Admin Setup Training (30 min)\n        - End-User Training (45 min)\n        - Integration Deep-Dive (60 min)\n        - Custom Training\n    - kind: InvokeAction\n      id: bookTraining\n      actionName: BookTrainingSession\n      input:\n        type: =Topic.trainingType",
+      "triggerPhrases": [
+        "schedule training",
+        "live training",
+        "book a demo",
+        "walkthrough session",
+        "onboarding call"
+      ]
+    }
+  ],
+  "tools": [
+    {
+      "id": "tool-1",
+      "name": "Dataverse Customer Records",
+      "description": "Looks up customer account details, plan info, and onboarding progress",
+      "type": "connector"
+    },
+    {
+      "id": "tool-2",
+      "name": "Outlook Calendar",
+      "description": "Schedules training sessions and sends calendar invites",
+      "type": "connector"
+    },
+    {
+      "id": "tool-3",
+      "name": "Teams Notifications",
+      "description": "Notifies the Customer Success team when a customer completes onboarding or needs help",
+      "type": "connector"
+    }
+  ],
+  "powerAutomateFlows": [
+    {
+      "id": "flow-1",
+      "name": "Lookup Customer Details",
+      "description": "Queries Dataverse for the customer's account, plan type, assigned CSM, and onboarding status",
+      "triggerType": "http",
+      "purpose": "Personalizes the onboarding experience based on the customer's specific plan and needs"
+    },
+    {
+      "id": "flow-2",
+      "name": "Book Training Session",
+      "description": "Checks onboarding team availability and sends a calendar invite for the training session",
+      "triggerType": "http",
+      "purpose": "Makes it frictionless for customers to get live help during setup"
+    },
+    {
+      "id": "flow-3",
+      "name": "Stalled Onboarding Alert",
+      "description": "Sends a proactive check-in message if a customer hasn't progressed in 48 hours",
+      "triggerType": "scheduled",
+      "purpose": "Prevents customers from dropping off mid-onboarding"
+    }
+  ],
+  "additionalSections": [
+    {
+      "id": "section-1",
+      "title": "Prerequisites",
+      "content": "1. Dataverse table with customer onboarding records\n2. Outlook calendar shared mailbox for the onboarding team\n3. Teams channel for CSM notifications\n4. Product API access for checking configuration status"
+    },
+    {
+      "id": "section-2",
+      "title": "Metrics Tracked",
+      "content": "- Time to complete each onboarding step\n- Total onboarding duration (target: < 5 days)\n- Training sessions booked vs. completed\n- Support tickets created during first 30 days\n- Customer satisfaction score at onboarding completion"
+    }
+  ],
+  "solutionFileName": "",
+  "screenshotUrls": [],
+  "qualityScore": 4.3,
+  "githubUrl": "https://github.com/evpeaire/AgentHub"
+}

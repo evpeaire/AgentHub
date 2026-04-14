@@ -1,0 +1,118 @@
+{
+  "id": "sales-proposal-builder",
+  "name": "Sales Proposal Builder",
+  "description": "Generates tailored customer proposals by pulling product info, pricing, case studies, and competitive differentiators from your sales content library.",
+  "overview": "The Sales Proposal Builder helps account executives create personalized customer proposals in minutes instead of hours. It pulls relevant product information, pricing tiers, customer case studies, and competitive comparisons from your SharePoint sales library and Dynamics 365 CRM.\n\nSales reps describe the customer's industry, pain points, and budget, and the agent assembles a structured proposal outline with recommended products, ROI projections, and relevant customer success stories.\n\nThe agent also checks Dynamics 365 for existing customer history and open opportunities to personalize the proposal further.",
+  "instructions": "You are a Sales Proposal Builder assistant. Help sales representatives create compelling, personalized customer proposals.\n\nRules:\n1. Always ask about the customer's industry, company size, main challenges, and budget range\n2. Recommend products that genuinely fit the customer's needs — never oversell\n3. Include at least one relevant case study from a similar industry\n4. Provide competitive comparisons only when asked — stay positive about our products\n5. Format proposals with clear sections: Executive Summary, Proposed Solution, Pricing, ROI, Case Studies, Next Steps\n6. Flag any pricing that requires manager approval (deals over $100k)\n7. Never share internal cost margins or discount approval thresholds",
+  "author": "evpeaire",
+  "authorEmail": "",
+  "createdAt": "2025-12-01T09:00:00.000Z",
+  "updatedAt": "2026-04-01T16:00:00.000Z",
+  "tags": [
+    "copilot",
+    "dynamics-365",
+    "sharepoint",
+    "sales",
+    "power-automate"
+  ],
+  "category": "Sales",
+  "topics": [
+    {
+      "id": "topic-1",
+      "name": "New Proposal",
+      "description": "Gathers customer requirements and generates a proposal outline",
+      "yamlContent": "kind: AdaptiveDialog\nbeginDialog:\n  kind: OnRecognizedIntent\n  id: newProposal\n  intent:\n    triggerQueries:\n      - Create a new proposal\n      - I need to build a proposal\n      - Help me with a customer proposal\n  actions:\n    - kind: Question\n      id: customerName\n      prompt: What's the customer or company name?\n      variable: Topic.customerName\n    - kind: Question\n      id: industry\n      prompt: What industry are they in?\n      variable: Topic.industry\n      choices:\n        - Financial Services\n        - Healthcare\n        - Retail\n        - Manufacturing\n        - Technology\n        - Education\n        - Government\n        - Other\n    - kind: Question\n      id: painPoints\n      prompt: What are their main challenges or pain points?\n      variable: Topic.painPoints\n    - kind: Question\n      id: budget\n      prompt: What's their approximate budget range?\n      variable: Topic.budget\n    - kind: InvokeAction\n      id: generateProposal\n      actionName: GenerateProposalDraft",
+      "triggerPhrases": [
+        "create a proposal",
+        "new proposal",
+        "build a proposal",
+        "customer proposal",
+        "pitch deck"
+      ]
+    },
+    {
+      "id": "topic-2",
+      "name": "Find Case Studies",
+      "description": "Searches for relevant customer success stories by industry or product",
+      "yamlContent": "kind: AdaptiveDialog\nbeginDialog:\n  kind: OnRecognizedIntent\n  id: findCaseStudies\n  intent:\n    triggerQueries:\n      - Find case studies\n      - Customer success stories\n      - Show me references\n  actions:\n    - kind: Question\n      id: csIndustry\n      prompt: What industry should the case study be from?\n      variable: Topic.csIndustry\n    - kind: InvokeAction\n      id: searchCaseStudies\n      actionName: SearchSharePointCaseStudies\n      input:\n        industry: =Topic.csIndustry",
+      "triggerPhrases": [
+        "find case studies",
+        "customer references",
+        "success stories",
+        "similar customers"
+      ]
+    },
+    {
+      "id": "topic-3",
+      "name": "Pricing Calculator",
+      "description": "Calculates pricing based on product selection and volume",
+      "yamlContent": "kind: AdaptiveDialog\nbeginDialog:\n  kind: OnRecognizedIntent\n  id: pricing\n  intent:\n    triggerQueries:\n      - Calculate pricing\n      - How much does it cost\n      - Pricing for a deal\n  actions:\n    - kind: Question\n      id: products\n      prompt: Which products are you including in this deal?\n      variable: Topic.products\n    - kind: Question\n      id: licenses\n      prompt: How many user licenses?\n      variable: Topic.licenseCount\n    - kind: Question\n      id: term\n      prompt: What contract term? (1 year, 3 year)\n      variable: Topic.contractTerm",
+      "triggerPhrases": [
+        "calculate pricing",
+        "how much does it cost",
+        "pricing estimate",
+        "deal pricing",
+        "quote"
+      ]
+    }
+  ],
+  "tools": [
+    {
+      "id": "tool-1",
+      "name": "Dynamics 365 CRM",
+      "description": "Pulls customer account history, open opportunities, and contact information",
+      "type": "connector"
+    },
+    {
+      "id": "tool-2",
+      "name": "SharePoint Sales Library",
+      "description": "Searches product sheets, case studies, competitive analysis docs, and pricing guides",
+      "type": "connector"
+    },
+    {
+      "id": "tool-3",
+      "name": "Word Online",
+      "description": "Generates formatted proposal documents from templates",
+      "type": "connector"
+    }
+  ],
+  "powerAutomateFlows": [
+    {
+      "id": "flow-1",
+      "name": "Generate Proposal Draft",
+      "description": "Assembles a proposal document from template, pulling in customer-specific data, recommended products, and case studies",
+      "triggerType": "http",
+      "purpose": "Automates the most time-consuming part of proposal creation"
+    },
+    {
+      "id": "flow-2",
+      "name": "Search SharePoint Case Studies",
+      "description": "Queries the SharePoint case study library filtered by industry, product, and deal size",
+      "triggerType": "http",
+      "purpose": "Finds the most relevant customer references for the proposal"
+    },
+    {
+      "id": "flow-3",
+      "name": "Manager Approval Request",
+      "description": "Routes proposals over $100k for manager review and approval via Teams adaptive card",
+      "triggerType": "http",
+      "purpose": "Enforces pricing approval policies while keeping the workflow fast"
+    }
+  ],
+  "additionalSections": [
+    {
+      "id": "section-1",
+      "title": "Prerequisites",
+      "content": "1. Dynamics 365 Sales with API access\n2. SharePoint site with organized sales content library\n3. Word Online proposal templates\n4. Sales team members added to the Copilot Studio environment"
+    },
+    {
+      "id": "section-2",
+      "title": "Customization Guide",
+      "content": "- Update pricing tiers in the SharePoint pricing guide document quarterly\n- Add new case studies to the /CaseStudies library with proper metadata tags\n- Modify the Word template at /Templates/ProposalTemplate.docx for branding changes\n- Adjust the $100k approval threshold in the Manager Approval flow"
+    }
+  ],
+  "solutionFileName": "",
+  "screenshotUrls": [],
+  "qualityScore": 4.3,
+  "githubUrl": "https://github.com/evpeaire/AgentHub"
+}

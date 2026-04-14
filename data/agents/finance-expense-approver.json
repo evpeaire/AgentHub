@@ -1,0 +1,123 @@
+{
+  "id": "finance-expense-approver",
+  "name": "Finance Expense Approver",
+  "description": "Automates expense report submissions, validates receipts against company policy, routes for approval, and answers questions about the expense policy.",
+  "overview": "The Finance Expense Approver streamlines the entire expense management workflow. Employees submit expenses through a conversational interface — the agent validates each line item against company policy, flags violations, calculates totals with per diem rates, and routes the report for manager approval.\n\nIt handles the back-and-forth that typically bogs down finance teams: 'Is this expense category right?', 'Do I need a receipt for this amount?', 'What's the per diem for this city?', 'When will I get reimbursed?'\n\nThe agent connects to SAP Concur for expense processing and SharePoint for policy documents. Finance teams report 50% fewer policy-violation resubmissions and 3x faster approval cycles.",
+  "instructions": "You are a Finance Expense Approver assistant. Help employees submit expense reports correctly and answer expense policy questions.\n\nRules:\n1. Always check expenses against the current company policy before approving\n2. Receipts are required for any expense over $25\n3. Flag expenses that exceed category limits but don't reject them — route to manager\n4. Use current per diem rates from the GSA table for travel expenses\n5. Meals with clients require attendee names and business purpose\n6. Never approve expenses missing required documentation — return with clear instructions\n7. Be helpful and non-judgmental — people make honest mistakes with expenses\n8. Process within 24 hours SLA for standard reports, 4 hours for urgent/travel",
+  "author": "evpeaire",
+  "authorEmail": "",
+  "createdAt": "2026-02-01T14:00:00.000Z",
+  "updatedAt": "2026-04-10T09:00:00.000Z",
+  "tags": [
+    "copilot",
+    "power-automate",
+    "sharepoint",
+    "finance",
+    "excel"
+  ],
+  "category": "Finance",
+  "topics": [
+    {
+      "id": "topic-1",
+      "name": "Submit Expense Report",
+      "description": "Guides employees through submitting a new expense report",
+      "yamlContent": "kind: AdaptiveDialog\nbeginDialog:\n  kind: OnRecognizedIntent\n  id: submitExpense\n  intent:\n    triggerQueries:\n      - Submit an expense report\n      - I have expenses to submit\n      - New expense report\n  actions:\n    - kind: Question\n      id: expenseType\n      prompt: What type of expense is this?\n      variable: Topic.expenseType\n      choices:\n        - Travel (flights, hotel, transport)\n        - Meals & Entertainment\n        - Office Supplies\n        - Software & Subscriptions\n        - Training & Conferences\n        - Other\n    - kind: Question\n      id: amount\n      prompt: What's the total amount?\n      variable: Topic.amount\n    - kind: Question\n      id: date\n      prompt: When was this expense incurred?\n      variable: Topic.expenseDate\n    - kind: Question\n      id: description\n      prompt: Brief description and business purpose?\n      variable: Topic.description\n    - kind: InvokeAction\n      id: validateExpense\n      actionName: ValidateAndSubmitExpense",
+      "triggerPhrases": [
+        "submit expense",
+        "expense report",
+        "reimburse me",
+        "I spent money on",
+        "new expense"
+      ]
+    },
+    {
+      "id": "topic-2",
+      "name": "Expense Policy Questions",
+      "description": "Answers questions about what's covered, limits, and requirements",
+      "yamlContent": "kind: AdaptiveDialog\nbeginDialog:\n  kind: OnRecognizedIntent\n  id: policyQuestion\n  intent:\n    triggerQueries:\n      - What's the expense policy\n      - Can I expense this\n      - What's the limit for\n  actions:\n    - kind: SendActivity\n      id: policyOverview\n      activity:\n        text: |\n          Here are the key expense policy highlights:\n          \n          **Receipts:** Required for any expense over $25\n          **Meals:** $75/day domestic, $100/day international\n          **Hotels:** Follow GSA per diem rates for the city\n          **Flights:** Economy class for domestic, premium economy for 6+ hours\n          **Software:** Up to $50/month without approval, above needs manager sign-off\n          \n          What specific expense are you wondering about?",
+      "triggerPhrases": [
+        "expense policy",
+        "can I expense this",
+        "expense limit",
+        "receipt required",
+        "what's allowed"
+      ]
+    },
+    {
+      "id": "topic-3",
+      "name": "Check Reimbursement Status",
+      "description": "Looks up the status of a submitted expense report",
+      "yamlContent": "kind: AdaptiveDialog\nbeginDialog:\n  kind: OnRecognizedIntent\n  id: checkStatus\n  intent:\n    triggerQueries:\n      - Where's my reimbursement\n      - Expense report status\n      - When will I get paid back\n  actions:\n    - kind: Question\n      id: reportId\n      prompt: Do you have the expense report number? If not, I can look it up by date.\n      variable: Topic.reportId\n    - kind: InvokeAction\n      id: lookupStatus\n      actionName: CheckExpenseStatus\n      input:\n        reportId: =Topic.reportId",
+      "triggerPhrases": [
+        "reimbursement status",
+        "where's my money",
+        "expense report status",
+        "when will I be reimbursed"
+      ]
+    }
+  ],
+  "tools": [
+    {
+      "id": "tool-1",
+      "name": "SAP Concur API",
+      "description": "Submits expense reports, checks approval status, and queries reimbursement timelines",
+      "type": "custom-connector"
+    },
+    {
+      "id": "tool-2",
+      "name": "SharePoint Policy Library",
+      "description": "Retrieves current expense policy documents, per diem tables, and category limits",
+      "type": "connector"
+    },
+    {
+      "id": "tool-3",
+      "name": "Excel GSA Per Diem Rates",
+      "description": "Looks up current government per diem rates by city for travel expense validation",
+      "type": "connector"
+    }
+  ],
+  "powerAutomateFlows": [
+    {
+      "id": "flow-1",
+      "name": "Validate and Submit Expense",
+      "description": "Validates expense against policy limits, checks for receipt attachment, and submits to Concur with proper categorization",
+      "triggerType": "http",
+      "purpose": "Catches policy violations before submission, reducing rejection rates"
+    },
+    {
+      "id": "flow-2",
+      "name": "Check Expense Status",
+      "description": "Queries Concur for the current status of an expense report — pending, approved, processing, or paid",
+      "triggerType": "http",
+      "purpose": "Gives employees instant visibility into their reimbursement status"
+    },
+    {
+      "id": "flow-3",
+      "name": "Manager Approval Reminder",
+      "description": "Sends a Teams reminder to managers with expense reports pending approval for more than 48 hours",
+      "triggerType": "scheduled",
+      "purpose": "Keeps approval cycles short and employees happy"
+    }
+  ],
+  "additionalSections": [
+    {
+      "id": "section-1",
+      "title": "Prerequisites",
+      "content": "1. SAP Concur instance with API credentials\n2. SharePoint site with expense policy documents\n3. Excel workbook with current GSA per diem rates (updated annually)\n4. Teams channel for finance team notifications"
+    },
+    {
+      "id": "section-2",
+      "title": "Configuration Notes",
+      "content": "- Update per diem rates in the Excel workbook each October when GSA publishes new rates\n- Category spending limits are defined in the SharePoint policy doc — update there to change limits\n- The 48-hour approval reminder runs daily at 9 AM UTC\n- Receipt OCR validation requires AI Builder credits"
+    },
+    {
+      "id": "section-3",
+      "title": "Deployment Notes",
+      "content": "After importing the solution:\n1. Update the SAP Concur custom connector with your instance URL and API key\n2. Set the SharePoint site URL in the policy lookup flow\n3. Configure the per diem Excel file location\n4. Test with a $0 expense report to verify end-to-end flow"
+    }
+  ],
+  "solutionFileName": "",
+  "screenshotUrls": [],
+  "qualityScore": 4.3,
+  "githubUrl": "https://github.com/evpeaire/AgentHub"
+}

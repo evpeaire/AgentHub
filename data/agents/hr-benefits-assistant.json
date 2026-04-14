@@ -1,0 +1,103 @@
+{
+  "id": "hr-benefits-assistant",
+  "name": "HR Benefits Assistant",
+  "description": "Helps employees navigate benefits enrollment, PTO policies, and compensation questions using your company's HR knowledge base.",
+  "overview": "The HR Benefits Assistant is a conversational agent designed to help employees quickly find answers about their benefits package, PTO policies, health insurance options, 401k matching, and other compensation-related questions.\n\nIt connects to your SharePoint-hosted HR knowledge base and provides accurate, policy-specific answers rather than generic information. Employees can ask about open enrollment deadlines, compare health plan options, check their PTO balance process, and understand vesting schedules.\n\nBuilt for mid-to-large enterprises with complex benefits structures where HR teams are overwhelmed with repetitive questions.",
+  "instructions": "You are an HR Benefits Assistant for our organization. Your role is to help employees understand their benefits, PTO policies, and compensation packages.\n\nRules:\n1. Always cite the specific policy document when answering\n2. Never make up benefits information — if unsure, direct the employee to HR\n3. Be empathetic and professional\n4. For sensitive topics (termination, disability), provide the information but suggest scheduling a call with HR\n5. Format responses with clear headers and bullet points for readability\n6. If the employee asks about something outside HR scope, politely redirect them",
+  "author": "evpeaire",
+  "authorEmail": "",
+  "createdAt": "2025-11-15T10:00:00.000Z",
+  "updatedAt": "2026-03-20T14:30:00.000Z",
+  "tags": [
+    "copilot",
+    "sharepoint",
+    "hr",
+    "employee-experience"
+  ],
+  "category": "HR",
+  "topics": [
+    {
+      "id": "topic-1",
+      "name": "Benefits Overview",
+      "description": "Provides a summary of all available benefits packages",
+      "yamlContent": "kind: AdaptiveDialog\nbeginDialog:\n  kind: OnRecognizedIntent\n  id: benefitsOverview\n  intent:\n    triggerQueries:\n      - What benefits do we offer\n      - Tell me about our benefits\n      - Benefits overview\n  actions:\n    - kind: SendActivity\n      id: sendBenefits\n      activity:\n        text: |\n          Here's an overview of your benefits package:\n          \n          **Health Insurance**: Medical, Dental, Vision\n          **Retirement**: 401k with 6% match\n          **Time Off**: 20 days PTO + 10 holidays\n          **Wellness**: $500 annual wellness stipend\n          \n          Which benefit would you like to learn more about?",
+      "triggerPhrases": [
+        "what benefits do we offer",
+        "benefits overview",
+        "tell me about our benefits",
+        "what are my benefits"
+      ]
+    },
+    {
+      "id": "topic-2",
+      "name": "PTO Balance & Requests",
+      "description": "Helps employees check PTO policies and request time off",
+      "yamlContent": "kind: AdaptiveDialog\nbeginDialog:\n  kind: OnRecognizedIntent\n  id: ptoRequest\n  intent:\n    triggerQueries:\n      - How do I request PTO\n      - What is our PTO policy\n      - How many vacation days do I have\n  actions:\n    - kind: Question\n      id: ptoType\n      prompt: What type of time off are you looking for?\n      variable: Topic.ptoType\n      choices:\n        - Vacation\n        - Sick Leave\n        - Personal Day\n        - Parental Leave",
+      "triggerPhrases": [
+        "how do I request PTO",
+        "PTO policy",
+        "vacation days",
+        "time off request",
+        "how many days off"
+      ]
+    },
+    {
+      "id": "topic-3",
+      "name": "Health Insurance Comparison",
+      "description": "Compares available health plan options side by side",
+      "yamlContent": "kind: AdaptiveDialog\nbeginDialog:\n  kind: OnRecognizedIntent\n  id: healthCompare\n  intent:\n    triggerQueries:\n      - Compare health plans\n      - Which health plan should I choose\n      - Health insurance options\n  actions:\n    - kind: SendActivity\n      id: sendComparison\n      activity:\n        text: |\n          We offer three health plans:\n          \n          | Plan | Monthly Cost | Deductible | Coverage |\n          |------|-------------|------------|----------|\n          | Basic | $150 | $2,000 | 70% |\n          | Standard | $300 | $1,000 | 85% |\n          | Premium | $500 | $500 | 95% |\n          \n          Would you like details on any specific plan?",
+      "triggerPhrases": [
+        "compare health plans",
+        "which plan should I choose",
+        "health insurance options",
+        "medical plan comparison"
+      ]
+    }
+  ],
+  "tools": [
+    {
+      "id": "tool-1",
+      "name": "SharePoint HR Knowledge Base",
+      "description": "Searches the HR SharePoint site for policy documents, benefit guides, and FAQ articles",
+      "type": "connector"
+    },
+    {
+      "id": "tool-2",
+      "name": "Outlook Calendar",
+      "description": "Books meetings with HR representatives for complex benefit questions",
+      "type": "connector"
+    }
+  ],
+  "powerAutomateFlows": [
+    {
+      "id": "flow-1",
+      "name": "PTO Request Submission",
+      "description": "Submits a PTO request to the HR system and notifies the employee's manager for approval",
+      "triggerType": "http",
+      "purpose": "Automates the PTO request workflow so employees can request time off directly through the agent"
+    },
+    {
+      "id": "flow-2",
+      "name": "Benefits Enrollment Reminder",
+      "description": "Sends personalized open enrollment reminders with deadline information",
+      "triggerType": "scheduled",
+      "purpose": "Ensures employees don't miss open enrollment windows"
+    }
+  ],
+  "additionalSections": [
+    {
+      "id": "section-1",
+      "title": "Prerequisites",
+      "content": "1. SharePoint site with HR knowledge base articles\n2. HR system API access for PTO requests\n3. Outlook connector configured for calendar booking\n4. Admin access to Power Platform environment"
+    },
+    {
+      "id": "section-2",
+      "title": "Known Limitations",
+      "content": "- Cannot process actual payroll changes\n- PTO balance lookup requires integration with your HRIS\n- Benefits cost calculations are based on 2025 rates — update annually"
+    }
+  ],
+  "solutionFileName": "",
+  "screenshotUrls": [],
+  "qualityScore": 4.3,
+  "githubUrl": "https://github.com/evpeaire/AgentHub"
+}
