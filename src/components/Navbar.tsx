@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useGitHubAuth } from '../auth/GitHubAuth';
 
 export default function Navbar() {
-  const { user, isAuthenticated, login, logout, isLoading, deviceCode } = useGitHubAuth();
+  const { user, isAuthenticated, login, logout, isLoading } = useGitHubAuth();
 
   return (
     <nav className="navbar">
@@ -16,12 +16,6 @@ export default function Navbar() {
           {isAuthenticated && <Link to="/submit" className="nav-link nav-link-cta">Submit Agent</Link>}
         </div>
         <div className="navbar-right">
-          {deviceCode && (
-            <div className="device-code-inline">
-              <span className="device-code-label">Enter code:</span>
-              <code className="device-code-value">{deviceCode.user_code}</code>
-            </div>
-          )}
           {isAuthenticated && user ? (
             <div className="auth-info">
               <img src={user.avatar_url} alt="" className="avatar-img" />
