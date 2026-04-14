@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import AgentDetail from './pages/AgentDetail';
 import SubmitAgent from './pages/SubmitAgent';
+import Profile from './pages/Profile';
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
               <Route path="/" element={<Home />} />
               <Route path="/agent/:id" element={<AgentDetail />} />
               <Route path="/submit" element={<SubmitAgent />} />
+              <Route path="/profile" element={<Profile />} />
             </Routes>
           </main>
           <footer className="site-footer">
