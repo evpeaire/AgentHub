@@ -36,6 +36,7 @@ jobs:
           VITE_GITHUB_CLIENT_ID: Ov23liaKEXBnfl9YEcqe
           VITE_REPO_OWNER: evpeaire
           VITE_REPO_NAME: AgentHub
+          VITE_OAUTH_PROXY_URL: https://agent-hub-oauth.evpeaire.workers.dev
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

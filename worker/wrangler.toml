@@ -1,0 +1,7 @@
+name = "agent-hub-oauth"
+main = "index.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+GITHUB_CLIENT_ID = "Ov23liaKEXBnfl9YEcqe"
+ALLOWED_ORIGIN = "https://evpeaire.github.io"
